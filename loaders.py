@@ -2,6 +2,15 @@ from __future__ import annotations
 import io, re
 import pandas as pd
 
+import pandas as pd
+
+def load_delivery_data(uploaded_file):
+    if uploaded_file.name.endswith(".csv"):
+        return pd.read_csv(uploaded_file)
+    else:
+        return pd.read_excel(uploaded_file)
+
+
 # NOTE:
 # We import heavy/optional libs *inside* functions so that a failed import
 # does NOT break module import (which causes "cannot import name ..." masking).
@@ -108,4 +117,5 @@ def normalize_and_validate(df: pd.DataFrame) -> pd.DataFrame:
         )
     else:
         df["billable"] = (df["billable"] > 0).astype(int)
+
     return df
