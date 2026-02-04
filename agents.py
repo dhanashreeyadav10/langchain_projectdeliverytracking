@@ -1,20 +1,40 @@
-# from __future__ import annotations
-from llm import get_llm
+# # from __future__ import annotations
+# from llm import get_llm
 
 
-def delivery_agent(question, context):
-    llm = get_llm()
+# def delivery_agent(question, context):
+#     llm = get_llm()
 
-    prompt = (
-        "You are a delivery intelligence agent.\n\n"
-        f"Context:\n{context}\n\n"
-        f"Question:\n{question}"
-    )
+#     prompt = (
+#         "You are a delivery intelligence agent.\n\n"
+#         f"Context:\n{context}\n\n"
+#         f"Question:\n{question}"
+#     )
 
-    return llm.invoke(prompt)
+#     return llm.invoke(prompt)
 
 
 
+# import pandas as pd
+
+# class UtilizationAgent:
+#     def run(self, util_df: pd.DataFrame) -> pd.DataFrame:
+#         return util_df[util_df["utilization_pct"] < 60]
+
+# class DeliveryRiskAgent:
+#     def run(self, risk_df: pd.DataFrame) -> pd.DataFrame:
+#         return risk_df[risk_df["risk_flag"] == 1]
+
+# class CostMarginAgent:
+#     def run(self, cost_df: pd.DataFrame) -> pd.DataFrame:
+#         return cost_df[cost_df["margin"] < 0]
+
+# class HRRiskAgent:
+#     def run(self, hr_df: pd.DataFrame) -> pd.DataFrame:
+#         return hr_df[hr_df["hr_risk"] == 1]
+
+
+from __future__ import annotations
 import pandas as pd
 
 class UtilizationAgent:
@@ -32,6 +52,4 @@ class CostMarginAgent:
 class HRRiskAgent:
     def run(self, hr_df: pd.DataFrame) -> pd.DataFrame:
         return hr_df[hr_df["hr_risk"] == 1]
-
-
 
