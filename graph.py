@@ -167,7 +167,7 @@ Provide:
         """
         # ✅ ABSOLUTE, LAZY import with diagnostic on failure
         try:
-            from src.llm import explain_insight  # absolute import
+            from llm import explain_insight  # absolute import
             state["llm_summary"] = explain_insight(prompt)
         except Exception as e:
             import traceback
@@ -192,5 +192,6 @@ def build_graph():
     g.add_edge("hr", "summarize")
     g.add_edge("summarize", END)
     return g.compile()
+
 
 
