@@ -1,22 +1,6 @@
 from __future__ import annotations
 import pandas as pd
 
-from llm import get_llm
-
-def delivery_agent(query, context):
-    llm = get_llm()
-    prompt = f"""
-    Act as a delivery intelligence agent.
-
-    Context:
-    {context}
-
-    Question:
-    {query}
-    """
-    return llm.invoke(prompt)
-
-
 class UtilizationAgent:
     def run(self, util_df: pd.DataFrame) -> pd.DataFrame:
         return util_df[util_df["utilization_pct"] < 60]
@@ -31,5 +15,4 @@ class CostMarginAgent:
 
 class HRRiskAgent:
     def run(self, hr_df: pd.DataFrame) -> pd.DataFrame:
-
         return hr_df[hr_df["hr_risk"] == 1]
