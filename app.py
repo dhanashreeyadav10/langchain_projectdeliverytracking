@@ -216,7 +216,80 @@
 
 #                 )
 
-from qa import ask_delivery_bot
+# from qa import ask_delivery_bot
+
+# import streamlit as st
+# import pandas as pd
+
+# from loaders import load_delivery_data
+# from models import get_underutilized_employees
+# from qa import ask_delivery_bot
+# from llm import get_llm
+
+
+# st.set_page_config(page_title="Delivery Intelligence AI", layout="wide")
+
+# st.title("📦 Delivery Intelligence Platform")
+
+# # ---------------- Upload Section ----------------
+# st.sidebar.header("📂 Upload Data")
+# uploaded_file = st.sidebar.file_uploader(
+#     "Upload Delivery Data (CSV / Excel)",
+#     type=["csv", "xlsx"]
+# )
+
+# df = None
+# if uploaded_file:
+#     df = load_delivery_data(uploaded_file)
+#     st.success("Data loaded successfully!")
+#     st.dataframe(df.head())
+
+# # ---------------- Executive Summary ----------------
+# st.header("🧠 Executive AI Summary")
+
+# if st.button("Run AI Analysis"):
+#     if df is None:
+#         st.warning("Please upload data first.")
+#     else:
+#         try:
+#             llm = get_llm()
+#             summary_prompt = f"""
+#             Analyze the following delivery dataset and provide:
+#             - Utilization risks
+#             - Cost overruns
+#             - Key delivery concerns
+#             - Actionable recommendations
+
+#             Dataset snapshot:
+#             {df.head(20).to_string()}
+#             """
+
+#             summary = llm.invoke(summary_prompt)
+#             st.success("Executive Summary Generated")
+#             st.write(summary)
+
+#         except Exception as e:
+#             st.error(f"LLM Error: {e}")
+
+# # ---------------- Underutilization ----------------
+# st.header("📉 Underutilized Employees")
+
+# if df is not None:
+#     underutilized = get_underutilized_employees(df)
+#     st.dataframe(underutilized)
+
+# # ---------------- Ask Bot ----------------
+# st.header("🤖 Ask Delivery Intelligence Bot")
+
+# user_question = st.text_input("Ask a question (e.g. underutilized employees list)")
+
+# if st.button("Get Answer"):
+#     if df is None:
+#         st.warning("Upload data first.")
+#     else:
+#         answer = ask_delivery_bot(df, user_question)
+#         st.write(answer)
+        
 
 import streamlit as st
 import pandas as pd
@@ -227,25 +300,36 @@ from qa import ask_delivery_bot
 from llm import get_llm
 
 
-st.set_page_config(page_title="Delivery Intelligence AI", layout="wide")
+st.set_page_config(
+    page_title="Delivery Intelligence AI",
+    layout="wide"
+)
 
 st.title("📦 Delivery Intelligence Platform")
 
-# ---------------- Upload Section ----------------
-st.sidebar.header("📂 Upload Data")
+# ---------------- Sidebar Upload ----------------
+st.sidebar.header("📂 Upload Delivery Data")
+
 uploaded_file = st.sidebar.file_uploader(
-    "Upload Delivery Data (CSV / Excel)",
+    "Upload CSV or Excel",
     type=["csv", "xlsx"]
 )
 
 df = None
 if uploaded_file:
-    df = load_delivery_data(uploaded_file)
-    st.success("Data loaded successfully!")
+    try:
+        df = load_delivery_data(uploaded_file)
+        st.sidebar.success("Data loaded successfully")
+    except Exception as e:
+        st.sidebar.error(str(e))
+
+# ---------------- Data Preview ----------------
+if df is not None:
+    st.subheader("📊 Data Preview")
     st.dataframe(df.head())
 
-# ---------------- Executive Summary ----------------
-st.header("🧠 Executive AI Summary")
+# ---------------- Executive AI Summary ----------------
+st.subheader("🧠 Executive AI Summary")
 
 if st.button("Run AI Analysis"):
     if df is None:
@@ -253,42 +337,42 @@ if st.button("Run AI Analysis"):
     else:
         try:
             llm = get_llm()
-            summary_prompt = f"""
-            Analyze the following delivery dataset and provide:
-            - Utilization risks
-            - Cost overruns
-            - Key delivery concerns
-            - Actionable recommendations
 
-            Dataset snapshot:
-            {df.head(20).to_string()}
-            """
+            prompt = (
+                "Analyze the following delivery dataset and provide:\n"
+                "- Utilization risks\n"
+                "- Cost overruns\n"
+                "- Delivery bottlenecks\n"
+                "- Actionable recommendations\n\n"
+                f"Dataset snapshot:\n{df.head(30).to_string()}"
+            )
 
-            summary = llm.invoke(summary_prompt)
+            summary = llm.invoke(prompt)
             st.success("Executive Summary Generated")
             st.write(summary)
 
         except Exception as e:
             st.error(f"LLM Error: {e}")
 
-# ---------------- Underutilization ----------------
-st.header("📉 Underutilized Employees")
+# ---------------- Underutilized Employees ----------------
+st.subheader("📉 Underutilized Employees")
 
 if df is not None:
     underutilized = get_underutilized_employees(df)
     st.dataframe(underutilized)
 
 # ---------------- Ask Bot ----------------
-st.header("🤖 Ask Delivery Intelligence Bot")
+st.subheader("🤖 Ask Delivery Intelligence Bot")
 
-user_question = st.text_input("Ask a question (e.g. underutilized employees list)")
+user_question = st.text_input(
+    "Ask a question (e.g., underutilized employees list)"
+)
 
 if st.button("Get Answer"):
     if df is None:
-        st.warning("Upload data first.")
+        st.warning("Please upload data first.")
     else:
         answer = ask_delivery_bot(df, user_question)
         st.write(answer)
-        
 
 
