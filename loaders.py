@@ -1,135 +1,105 @@
-# from __future__ import annotations
-# import io, re
-# import pandas as pd
-
-# REQUIRED_COLS = [
-#     "employee_id", "employee_name", "department", "designation",
-#     "employment_type", "location", "experience_years", "cost_per_hour",
-#     "manager_id", "project_id", "project_name", "client_name",
-#     "project_type", "start_date", "end_date", "planned_hours",
-#     "billing_rate", "work_date", "hours_logged", "billable",
-#     "task_type", "jira_ticket", "ticket_status", "priority",
-#     "story_points", "attendance_pct", "leave_days", "performance_rating"
-# ]
-
-# NUMERIC_COLS = [
-#     "hours_logged", "cost_per_hour", "billing_rate",
-#     "attendance_pct", "leave_days", "performance_rating",
-#     "experience_years", "story_points", "planned_hours"
-# ]
-
-# def parse_excel(file_bytes: bytes) -> pd.DataFrame:
-#     try:
-#         return pd.read_excel(io.BytesIO(file_bytes))
-#     except Exception as e:
-#         raise RuntimeError(
-#             "Excel parsing failed. Ensure 'openpyxl' is installed and the file is a valid .xlsx."
-#         ) from e
-
-# def parse_csv_txt(file_bytes: bytes) -> pd.DataFrame:
-#     try:
-#         import chardet
-#     except Exception as e:
-#         raise RuntimeError("Missing dependency: chardet") from e
-
-#     encoding = chardet.detect(file_bytes).get("encoding", "utf-8")
-#     text = file_bytes.decode(encoding, errors="ignore")
-#     lines = [l.strip() for l in text.splitlines() if l.strip()]
-#     if len(lines) < 2:
-#         raise ValueError("File has no data rows")
-#     sample = lines[1]
-#     delimiter = None
-#     for d in [",", ";", "\t", "|"]:
-#         if sample.count(d) >= 5:
-#             delimiter = d
-#             break
-#     if delimiter is None:
-#         raise ValueError("Unable to detect delimiter")
-#     header = lines[0].split(delimiter)
-#     if len(header) < len(REQUIRED_COLS):
-#         header_line = delimiter.join(REQUIRED_COLS)
-#         csv_text = "\n".join([header_line] + lines[1:])
-#     else:
-#         csv_text = "\n".join(lines)
-#     df = pd.read_csv(io.StringIO(csv_text), sep=delimiter, engine="python")
-#     return df
-
-# def parse_pdf(file_bytes: bytes) -> pd.DataFrame:
-#     try:
-#         import pdfplumber
-#     except Exception as e:
-#         raise RuntimeError("Missing dependency: pdfplumber") from e
-
-#     rows = []
-#     with pdfplumber.open(io.BytesIO(file_bytes)) as pdf:
-#         for page in pdf.pages:
-#             table = page.extract_table()
-#             if table:
-#                 for r in table[1:]:
-#                     if len(r) >= len(REQUIRED_COLS):
-#                         rows.append(r[:len(REQUIRED_COLS)])
-#             else:
-#                 text = page.extract_text() or ""
-#                 for line in text.split("\n"):
-#                     parts = re.split(r"[,\\s]+", line.strip())
-#                     if len(parts) >= len(REQUIRED_COLS):
-#                         rows.append(parts[:len(REQUIRED_COLS)])
-#     if not rows:
-#         raise ValueError("No usable tabular data found in PDF")
-#     return pd.DataFrame(rows, columns=REQUIRED_COLS)
-
-# def normalize_and_validate(df: pd.DataFrame) -> pd.DataFrame:
-#     df = df.copy()
-#     df.columns = (
-#         df.columns.astype(str)
-#         .str.strip().str.lower().str.replace(" ", "_", regex=False)
-#     )
-#     missing = set(REQUIRED_COLS) - set(df.columns)
-#     if missing:
-#         raise ValueError(f"Required columns missing: {sorted(missing)}")
-#     # Coerce numerics
-#     for col in NUMERIC_COLS:
-#         df[col] = pd.to_numeric(df[col], errors="coerce")
-#     # Normalize billable to [0,1]
-#     if df["billable"].dtype == object:
-#         df["billable"] = (
-#             df["billable"].astype(str).str.strip().str.lower()
-#             .map({"yes": 1, "y": 1, "true": 1, "1": 1, "no": 0, "n": 0, "false": 0, "0": 0})
-#             .fillna(0)
-#         )
-#     else:
-#         df["billable"] = (df["billable"] > 0).astype(int)
-#     return df
-
-
-
-# loaders.py
-import glob
+from __future__ import annotations
+import io, re
 import pandas as pd
-from pathlib import Path
-from typing import List
-from langchain_core.documents import Document
 
-def load_csv_folder(folder: str = "data") -> List[Document]:
-    """
-    Load all CSVs in ./data into Document objects for indexing.
-    - Keeps 'source' & 'row' in metadata for later attribution.
-    """
-    docs: List[Document] = []
-    Path(folder).mkdir(parents=True, exist_ok=True)
+REQUIRED_COLS = [
+    "employee_id", "employee_name", "department", "designation",
+    "employment_type", "location", "experience_years", "cost_per_hour",
+    "manager_id", "project_id", "project_name", "client_name",
+    "project_type", "start_date", "end_date", "planned_hours",
+    "billing_rate", "work_date", "hours_logged", "billable",
+    "task_type", "jira_ticket", "ticket_status", "priority",
+    "story_points", "attendance_pct", "leave_days", "performance_rating"
+]
 
-    for csv_path in glob.glob(str(Path(folder) / "*.csv")):
-        df = pd.read_csv(csv_path)
-        for idx, row in df.iterrows():
-            text = "\n".join(
-                f"{k}: {row[k]}"
-                for k in df.columns
-                if k in row and pd.notna(row[k])
-            )
-            docs.append(
-                Document(
-                    page_content=text,
-                    metadata={"source": Path(csv_path).name, "row": int(idx)},
-                )
-            )
-    return docs
+NUMERIC_COLS = [
+    "hours_logged", "cost_per_hour", "billing_rate",
+    "attendance_pct", "leave_days", "performance_rating",
+    "experience_years", "story_points", "planned_hours"
+]
+
+def parse_excel(file_bytes: bytes) -> pd.DataFrame:
+    try:
+        return pd.read_excel(io.BytesIO(file_bytes))
+    except Exception as e:
+        raise RuntimeError(
+            "Excel parsing failed. Ensure 'openpyxl' is installed and the file is a valid .xlsx."
+        ) from e
+
+def parse_csv_txt(file_bytes: bytes) -> pd.DataFrame:
+    try:
+        import chardet
+    except Exception as e:
+        raise RuntimeError("Missing dependency: chardet") from e
+
+    encoding = chardet.detect(file_bytes).get("encoding", "utf-8")
+    text = file_bytes.decode(encoding, errors="ignore")
+    lines = [l.strip() for l in text.splitlines() if l.strip()]
+    if len(lines) < 2:
+        raise ValueError("File has no data rows")
+    sample = lines[1]
+    delimiter = None
+    for d in [",", ";", "\t", "|"]:
+        if sample.count(d) >= 5:
+            delimiter = d
+            break
+    if delimiter is None:
+        raise ValueError("Unable to detect delimiter")
+    header = lines[0].split(delimiter)
+    if len(header) < len(REQUIRED_COLS):
+        header_line = delimiter.join(REQUIRED_COLS)
+        csv_text = "\n".join([header_line] + lines[1:])
+    else:
+        csv_text = "\n".join(lines)
+    df = pd.read_csv(io.StringIO(csv_text), sep=delimiter, engine="python")
+    return df
+
+def parse_pdf(file_bytes: bytes) -> pd.DataFrame:
+    try:
+        import pdfplumber
+    except Exception as e:
+        raise RuntimeError("Missing dependency: pdfplumber") from e
+
+    rows = []
+    with pdfplumber.open(io.BytesIO(file_bytes)) as pdf:
+        for page in pdf.pages:
+            table = page.extract_table()
+            if table:
+                for r in table[1:]:
+                    if len(r) >= len(REQUIRED_COLS):
+                        rows.append(r[:len(REQUIRED_COLS)])
+            else:
+                text = page.extract_text() or ""
+                for line in text.split("\n"):
+                    parts = re.split(r"[,\\s]+", line.strip())
+                    if len(parts) >= len(REQUIRED_COLS):
+                        rows.append(parts[:len(REQUIRED_COLS)])
+    if not rows:
+        raise ValueError("No usable tabular data found in PDF")
+    return pd.DataFrame(rows, columns=REQUIRED_COLS)
+
+def normalize_and_validate(df: pd.DataFrame) -> pd.DataFrame:
+    df = df.copy()
+    df.columns = (
+        df.columns.astype(str)
+        .str.strip().str.lower().str.replace(" ", "_", regex=False)
+    )
+    missing = set(REQUIRED_COLS) - set(df.columns)
+    if missing:
+        raise ValueError(f"Required columns missing: {sorted(missing)}")
+    # Coerce numerics
+    for col in NUMERIC_COLS:
+        df[col] = pd.to_numeric(df[col], errors="coerce")
+    # Normalize billable to [0,1]
+    if df["billable"].dtype == object:
+        df["billable"] = (
+            df["billable"].astype(str).str.strip().str.lower()
+            .map({"yes": 1, "y": 1, "true": 1, "1": 1, "no": 0, "n": 0, "false": 0, "0": 0})
+            .fillna(0)
+        )
+    else:
+        df["billable"] = (df["billable"] > 0).astype(int)
+    return df
+
+
+
