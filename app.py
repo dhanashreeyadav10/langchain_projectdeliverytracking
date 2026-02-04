@@ -99,12 +99,12 @@ st.set_page_config(page_title="🧠 Agentic AI – Project & Delivery (LangGraph
 loaders_import_error = None
 graph_qa_import_error = None
 try:
-    from src.loaders import parse_excel, parse_csv_txt, parse_pdf, normalize_and_validate
+    from loaders import parse_excel, parse_csv_txt, parse_pdf, normalize_and_validate
 except Exception:
     loaders_import_error = traceback.format_exc()
 try:
-    from src.graph import build_graph
-    from src.qa import route_and_summarize
+    from graph import build_graph
+    from qa import route_and_summarize
 except Exception:
     graph_qa_import_error = traceback.format_exc()
 
@@ -293,6 +293,7 @@ if st.button("🧠 Get Answer", key="qa_get_answer_btn"):
                     mime="text/csv",
                     key="qa_download_csv_btn",
                 )
+
 
 
 
