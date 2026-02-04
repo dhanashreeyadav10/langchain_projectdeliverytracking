@@ -1,3 +1,19 @@
+import pandas as pd
+
+
+def get_underutilized_employees(df, threshold=70):
+    required_cols = {"employee_id", "employee_name", "utilization"}
+
+    if not required_cols.issubset(df.columns):
+        return pd.DataFrame(
+            {"Message": ["Missing required columns in dataset"]}
+        )
+
+    return df[df["utilization"] < threshold][
+        ["employee_id", "employee_name", "utilization"]
+    ]
+
+
 from __future__ import annotations
 import pandas as pd
 
@@ -59,3 +75,4 @@ def hr_health_model(df: pd.DataFrame) -> pd.DataFrame:
     )
     hr["hr_risk"] = ((hr["avg_attendance"] < 90) | (hr["avg_rating"] < 3.5)).astype(int)
     return hr
+
