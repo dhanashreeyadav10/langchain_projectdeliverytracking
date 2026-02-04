@@ -1,30 +1,10 @@
+from __future__ import annotations
 import pandas as pd
-
-
-def get_underutilized_employees(df, threshold=30):
-    """
-    Expected columns:
-    - employee_id
-    - employee_name
-    - utilization
-    """
-
-    required_cols = {"employee_id", "employee_name", "utilization"}
-    if not required_cols.issubset(df.columns):
-        return pd.DataFrame(
-            {"Message": ["Required columns not found in dataset"]}
-        )
-
-    return df[df["utilization"] < threshold][
-        ["employee_id", "employee_name", "utilization"]
-    ]
-
 
 # --- UTILIZATION ---
 def utilization_model(df: pd.DataFrame) -> pd.DataFrame:
     util = df.groupby("employee_id")["hours_logged"].sum().reset_index()
     util["utilization_pct"] = (util["hours_logged"] / 160) * 100
-    # Attach meta if available
     meta_cols = [c for c in ["employee_name", "department"] if c in df.columns]
     if meta_cols:
         meta = df[["employee_id", *meta_cols]].drop_duplicates("employee_id")
@@ -78,6 +58,4 @@ def hr_health_model(df: pd.DataFrame) -> pd.DataFrame:
         .reset_index()
     )
     hr["hr_risk"] = ((hr["avg_attendance"] < 90) | (hr["avg_rating"] < 3.5)).astype(int)
-
     return hr
-
