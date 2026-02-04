@@ -111,8 +111,13 @@ from typing import List
 from langchain_core.documents import Document
 
 def load_csv_folder(folder: str = "data") -> List[Document]:
+    """
+    Load all CSVs in ./data into Document objects for indexing.
+    - Keeps 'source' & 'row' in metadata for later attribution.
+    """
     docs: List[Document] = []
     Path(folder).mkdir(parents=True, exist_ok=True)
+
     for csv_path in glob.glob(str(Path(folder) / "*.csv")):
         df = pd.read_csv(csv_path)
         for idx, row in df.iterrows():
@@ -121,5 +126,10 @@ def load_csv_folder(folder: str = "data") -> List[Document]:
                 for k in df.columns
                 if k in row and pd.notna(row[k])
             )
-            docs.append(Document(page_content=text, metadata={"source": Path(csv_path).name, "row": int(idx)}))
+            docs.append(
+                Document(
+                    page_content=text,
+                    metadata={"source": Path(csv_path).name, "row": int(idx)},
+                )
+            )
     return docs
