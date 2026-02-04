@@ -9,13 +9,13 @@ from llm import get_llm
 
 st.set_page_config(page_title="Delivery Intelligence AI", layout="wide")
 st.title("📦 Delivery Intelligence Platform")
-logo_path = "compunnel_logo.jpg"
+# logo_path = "compunnel_logo.jpg"
 
-if os.path.exists(logo_path):
-    logo = Image.open(logo_path)
-    st.image(logo, width=180)
-else:
-    st.warning("Compunnel logo not found")
+# if os.path.exists(logo_path):
+#     logo = Image.open(logo_path)
+#     st.image(logo, width=180)
+# else:
+#     st.warning("Compunnel logo not found")
 # Sidebar
 st.sidebar.header("📂 Upload Delivery Data")
 st.sidebar.image("compunnel_logo.jpg", width=180)
@@ -294,6 +294,7 @@ if st.button("Get Answer"):
 #                     mime="text/csv",
 #                     key="qa_download_csv_btn",
 #                 )
+
 
 
 
