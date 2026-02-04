@@ -1,85 +1,3 @@
-# import streamlit as st
-# from PIL import Image
-# import os
-# from loaders import load_delivery_data
-# from models import get_underutilized_employees
-# from qa import ask_delivery_bot
-# from llm import get_llm
-
-
-# st.set_page_config(page_title="Delivery Intelligence AI", layout="wide")
-# st.title("📦 Delivery Intelligence Platform")
-# # logo_path = "compunnel_logo.jpg"
-
-# # if os.path.exists(logo_path):
-# #     logo = Image.open(logo_path)
-# #     st.image(logo, width=180)
-# # else:
-# #     st.warning("Compunnel logo not found")
-# # Sidebar
-# st.sidebar.header("📂 Upload Delivery Data")
-# st.sidebar.image("compunnel_logo.jpg", width=180)
-# uploaded_file = st.sidebar.file_uploader(
-#     "Upload CSV or Excel file",
-#     type=["csv", "xlsx", "xls"]
-# )
-
-# df = None
-# if uploaded_file:
-#     try:
-#         df = load_delivery_data(uploaded_file)
-#         st.sidebar.success("Data loaded successfully")
-#     except Exception as e:
-#         st.sidebar.error(str(e))
-
-# # Preview
-# if df is not None:
-#     st.subheader("📊 Data Preview")
-#     st.dataframe(df.head())
-
-# # Executive Summary
-# st.subheader("🧠 Executive AI Summary")
-
-# if st.button("Run AI Analysis"):
-#     if df is None:
-#         st.warning("Please upload data first.")
-#     else:
-#         try:
-#             llm = get_llm()
-#             prompt = (
-#                 "Analyze the delivery dataset and provide:\n"
-#                 "- Utilization risks\n"
-#                 "- Delivery bottlenecks\n"
-#                 "- Cost concerns\n"
-#                 "- Actionable recommendations\n\n"
-#                 f"{df.head(25).to_string()}"
-#             )
-#             summary = llm.invoke(prompt)
-#             st.success("Analysis completed")
-#             st.write(summary)
-#         except Exception as e:
-#             st.error(f"LLM Error: {e}")
-
-# # Underutilized Employees
-# st.subheader("📉 Underutilized Employees")
-
-# if df is not None:
-#     st.dataframe(get_underutilized_employees(df))
-
-# # Ask Bot
-# st.subheader("🤖 Ask Delivery Intelligence Bot")
-
-# question = st.text_input(
-#     "Ask a question (e.g. Who are underutilized employees?)"
-# )
-
-# if st.button("Get Answer"):
-#     if df is None:
-#         st.warning("Please upload data first.")
-#     else:
-#         st.write(ask_delivery_bot(df, question))
-
-
 import sys, os
 from pathlib import Path
 
@@ -87,22 +5,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
-# # --- BEGIN robust import shim (fixes Windows path/import issues) ---
-# import sys, os
-# from pathlib import Path
-# _THIS_FILE = Path(__file__).resolve()
-# _PROJECT_ROOT = _THIS_FILE.parent
-# if str(_PROJECT_ROOT) not in sys.path:
-#     sys.path.insert(0, str(_PROJECT_ROOT))
-# --- END robust import shim ---
 
-# ---- PATH SHIM: MUST BE FIRST ----
-import sys, os
-from pathlib import Path
-ROOT = Path(__file__).resolve().parent  # project root: .../lc_poc
-if str(ROOT) not in sys.path:
-    sys.path.insert(0, str(ROOT))
-# ---- END PATH SHIM ----
 
 import traceback
 import streamlit as st
@@ -309,6 +212,7 @@ if st.button("🧠 Get Answer", key="qa_get_answer_btn"):
                     mime="text/csv",
                     key="qa_download_csv_btn",
                 )
+
 
 
 
