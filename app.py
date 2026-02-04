@@ -1,5 +1,6 @@
 import streamlit as st
-
+from PIL import Image
+import os
 from loaders import load_delivery_data
 from models import get_underutilized_employees
 from qa import ask_delivery_bot
@@ -8,9 +9,16 @@ from llm import get_llm
 
 st.set_page_config(page_title="Delivery Intelligence AI", layout="wide")
 st.title("📦 Delivery Intelligence Platform")
+logo_path = "compunnel_logo.jpg"
 
+if os.path.exists(logo_path):
+    logo = Image.open(logo_path)
+    st.image(logo, width=180)
+else:
+    st.warning("Compunnel logo not found")
 # Sidebar
 st.sidebar.header("📂 Upload Delivery Data")
+st.sidebar.image("compunnel_logo.jpg", width=180)
 uploaded_file = st.sidebar.file_uploader(
     "Upload CSV or Excel file",
     type=["csv", "xlsx", "xls"]
@@ -286,6 +294,7 @@ if st.button("Get Answer"):
 #                     mime="text/csv",
 #                     key="qa_download_csv_btn",
 #                 )
+
 
 
 
