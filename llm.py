@@ -1,4 +1,4 @@
-from __future__ import annotations
+# from __future__ import annotations
 import streamlit as st
 from langchain_groq import ChatGroq
 
@@ -50,5 +50,6 @@ def explain_insight(prompt: str, model: str = "llama-3.1-8b-instant") -> str:
     except Exception as e:
         # Surface exact server/client error so we know what's wrong
         return f"❌ LLM call failed: {e}"
+
 
 
