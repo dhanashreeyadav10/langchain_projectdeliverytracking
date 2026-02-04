@@ -317,22 +317,18 @@
 #         return answer_text, None
 
 
-
 from llm import get_llm
 from models import get_underutilized_employees
 
 
 def ask_delivery_bot(df, question: str):
-    """
-    Simple router for delivery intelligence questions
-    """
     if not question:
-        return "Please ask a valid question."
+        return "Please enter a valid question."
 
-    question_lower = question.lower()
+    q = question.lower()
 
     # Rule-based shortcut
-    if "underutil" in question_lower:
+    if "underutil" in q:
         result = get_underutilized_employees(df)
         if result.empty:
             return "No underutilized employees found."
@@ -342,12 +338,47 @@ def ask_delivery_bot(df, question: str):
     llm = get_llm()
 
     prompt = (
-        "You are a delivery intelligence assistant.\n\n"
-        f"Question:\n{question}\n\n"
-        "Here is a snapshot of the dataset:\n\n"
+        "You are a Delivery Intelligence Assistant.\n\n"
+        f"User Question:\n{question}\n\n"
+        "Here is a snapshot of the delivery dataset:\n\n"
         f"{df.head(30).to_string()}\n\n"
-        "Answer clearly with business insights."
+        "Provide clear business insights and recommendations."
     )
 
     response = llm.invoke(prompt)
     return response
+
+# from llm import get_llm
+# from models import get_underutilized_employees
+
+
+# def ask_delivery_bot(df, question: str):
+#     """
+#     Simple router for delivery intelligence questions
+#     """
+#     if not question:
+#         return "Please ask a valid question."
+
+#     question_lower = question.lower()
+
+#     # Rule-based shortcut
+#     if "underutil" in question_lower:
+#         result = get_underutilized_employees(df)
+#         if result.empty:
+#             return "No underutilized employees found."
+#         return result.to_string(index=False)
+
+#     # LLM fallback
+#     llm = get_llm()
+
+#     prompt = (
+#         "You are a delivery intelligence assistant.\n\n"
+#         f"Question:\n{question}\n\n"
+#         "Here is a snapshot of the dataset:\n\n"
+#         f"{df.head(30).to_string()}\n\n"
+#         "Answer clearly with business insights."
+#     )
+
+#     response = llm.invoke(prompt)
+#     return response
+
