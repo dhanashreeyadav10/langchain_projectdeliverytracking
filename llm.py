@@ -1,3 +1,4 @@
+from __future__ import annotations
 import streamlit as st
 from langchain_groq import ChatGroq
 
@@ -15,7 +16,7 @@ def get_llm():
 
 # -*- coding: utf-8 -*-
 """LLM helper using Groq Python SDK only (no LangChain dependency)."""
-from __future__ import annotations
+
 import os
 from typing import Optional
 
@@ -49,4 +50,5 @@ def explain_insight(prompt: str, model: str = "llama-3.1-8b-instant") -> str:
     except Exception as e:
         # Surface exact server/client error so we know what's wrong
         return f"❌ LLM call failed: {e}"
+
 
