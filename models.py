@@ -1,4 +1,4 @@
-from __future__ import annotations
+# from __future__ import annotations
 import pandas as pd
 
 
@@ -76,5 +76,6 @@ def hr_health_model(df: pd.DataFrame) -> pd.DataFrame:
     )
     hr["hr_risk"] = ((hr["avg_attendance"] < 90) | (hr["avg_rating"] < 3.5)).astype(int)
     return hr
+
 
 
