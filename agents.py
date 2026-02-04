@@ -1,3 +1,4 @@
+from __future__ import annotations
 from llm import get_llm
 
 
@@ -13,7 +14,7 @@ def delivery_agent(question, context):
     return llm.invoke(prompt)
 
 
-from __future__ import annotations
+
 import pandas as pd
 
 class UtilizationAgent:
@@ -31,4 +32,5 @@ class CostMarginAgent:
 class HRRiskAgent:
     def run(self, hr_df: pd.DataFrame) -> pd.DataFrame:
         return hr_df[hr_df["hr_risk"] == 1]
+
 
