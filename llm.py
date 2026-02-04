@@ -37,26 +37,24 @@
 
 
 
+
 # llm.py
 import os
 from typing import Optional
 from langchain_groq import ChatGroq
 
-# You can change the default model to a Groq-supported one you prefer
-# e.g., "llama-3.1-8b-instant", "llama-3.3-70b-versatile", "mixtral-8x7b-32768"
-# See Groq model lists; ensure the model supports your needs (tool use, reasoning, etc.)
+# Default; override via env GROQ_MODEL if you want
 DEFAULT_GROQ_MODEL = os.getenv("GROQ_MODEL", "llama-3.1-8b-instant")
 
 def get_llm(
     model: Optional[str] = None,
     temperature: float = 0.2,
     max_tokens: Optional[int] = None,
-    reasoning_format: Optional[str] = None,  # 'parsed'/'raw'/'hidden' where applicable
+    reasoning_format: Optional[str] = None,  # 'parsed'/'raw'/'hidden' for supported models
 ):
-    model_name = model or DEFAULT_GROQ_MODEL
-    # GROQ_API_KEY is read from environment
+    # Reads GROQ_API_KEY from env
     return ChatGroq(
-        model=model_name,
+        model=model or DEFAULT_GROQ_MODEL,
         temperature=temperature,
         max_tokens=max_tokens,
         reasoning_format=reasoning_format,
