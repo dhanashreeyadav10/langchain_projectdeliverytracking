@@ -11,7 +11,9 @@ def get_llm():
         api_key=st.secrets["GROQ_API_KEY"],
         model="llama3-70b-8192",
         temperature=0.2
+        # ❌ DO NOT add reasoning_format, response_format, etc.
     )
+
 
 
 # -*- coding: utf-8 -*-
@@ -50,6 +52,7 @@ def explain_insight(prompt: str, model: str = "llama-3.1-8b-instant") -> str:
     except Exception as e:
         # Surface exact server/client error so we know what's wrong
         return f"❌ LLM call failed: {e}"
+
 
 
 
