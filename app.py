@@ -279,7 +279,7 @@ if st.button("🧠 Get Answer", key="qa_get_answer_btn"):
         st.warning("Please enter a question.")
     else:
         with st.spinner("Analyzing..."):
-            from src.models import (
+            from models import (
                 utilization_model,
                 delivery_risk_model,
                 cost_margin_model,
@@ -309,6 +309,7 @@ if st.button("🧠 Get Answer", key="qa_get_answer_btn"):
                     mime="text/csv",
                     key="qa_download_csv_btn",
                 )
+
 
 
 
