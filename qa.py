@@ -1,3 +1,4 @@
+from __future__ import annotations
 from llm import get_llm
 from models import get_underutilized_employees
 
@@ -38,7 +39,7 @@ Return signature:
 
 - If table_df is not None, render it in Streamlit and optionally offer a CSV download.
 """
-from __future__ import annotations
+
 
 import os
 from typing import Optional, Tuple
@@ -318,5 +319,6 @@ def route_and_summarize(
             "Please check the LLM Health Check in the sidebar."
         )
         return answer_text, None
+
 
 
