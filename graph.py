@@ -1,4 +1,4 @@
-from __future__ import annotations
+# from __future__ import annotations
 from typing import Optional, TypedDict
 import pandas as pd
 from langgraph.graph import StateGraph, END
@@ -97,5 +97,6 @@ def build_graph():
     g.add_edge("hr", "summarize")
     g.add_edge("summarize", END)
     return g.compile()
+
 
 
