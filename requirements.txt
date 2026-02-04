@@ -29,7 +29,7 @@ chromadb>=0.5
 sentence-transformers>=3.0
 
 # App / utilities
-streamlit>=1.32
+streamlit==1.35.0
 pydantic>=2.5
 python-dotenv>=1.0
 
@@ -37,5 +37,6 @@ python-dotenv>=1.0
 # unstructured>=0.15
 # pdfminer.six>=20231228
 # pypdf>=4.0
+
 
 
