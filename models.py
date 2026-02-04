@@ -1,14 +1,19 @@
-from __future__ import annotations
 import pandas as pd
 
-import pandas as pd
 
-def get_underutilized_employees(df, threshold=70):
+def get_underutilized_employees(df, threshold=30):
     """
-    Assumes 'utilization' column exists
+    Expected columns:
+    - employee_id
+    - employee_name
+    - utilization
     """
-    if "utilization" not in df.columns:
-        return pd.DataFrame({"Message": ["No utilization column found"]})
+
+    required_cols = {"employee_id", "employee_name", "utilization"}
+    if not required_cols.issubset(df.columns):
+        return pd.DataFrame(
+            {"Message": ["Required columns not found in dataset"]}
+        )
 
     return df[df["utilization"] < threshold][
         ["employee_id", "employee_name", "utilization"]
@@ -75,3 +80,4 @@ def hr_health_model(df: pd.DataFrame) -> pd.DataFrame:
     hr["hr_risk"] = ((hr["avg_attendance"] < 90) | (hr["avg_rating"] < 3.5)).astype(int)
 
     return hr
+
