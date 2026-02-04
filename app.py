@@ -79,13 +79,21 @@
 #     else:
 #         st.write(ask_delivery_bot(df, question))
 
-# --- BEGIN robust import shim (fixes Windows path/import issues) ---
+
 import sys, os
 from pathlib import Path
-_THIS_FILE = Path(__file__).resolve()
-_PROJECT_ROOT = _THIS_FILE.parent
-if str(_PROJECT_ROOT) not in sys.path:
-    sys.path.insert(0, str(_PROJECT_ROOT))
+
+# Force Streamlit to treat project root as a package root.
+ROOT = Path(__file__).resolve().parent
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+# # --- BEGIN robust import shim (fixes Windows path/import issues) ---
+# import sys, os
+# from pathlib import Path
+# _THIS_FILE = Path(__file__).resolve()
+# _PROJECT_ROOT = _THIS_FILE.parent
+# if str(_PROJECT_ROOT) not in sys.path:
+#     sys.path.insert(0, str(_PROJECT_ROOT))
 # --- END robust import shim ---
 
 import traceback
@@ -293,6 +301,7 @@ if st.button("🧠 Get Answer", key="qa_get_answer_btn"):
                     mime="text/csv",
                     key="qa_download_csv_btn",
                 )
+
 
 
 
