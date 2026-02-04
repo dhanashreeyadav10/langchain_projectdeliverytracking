@@ -20,7 +20,7 @@
 
 # --- Streamlit UI ---
 streamlit==1.35.0
-rich==13.7.1   # Streamlit requires rich <14
+rich==13.7.1   # Streamlit 1.35 requires rich < 14
 
 python-dotenv>=1.0
 
@@ -29,18 +29,13 @@ langchain>=0.2
 langchain-community>=0.2
 langchain-text-splitters>=0.2
 
-# --- Groq integration ---
+# --- Groq provider for LangChain (official integration) ---
 langchain-groq>=1.0
 
-# --- Vector store + Embeddings ---
+# --- Vector DB + Embeddings ---
 chromadb>=0.5
 sentence-transformers>=3.0
 
 # --- Misc runtime ---
 pydantic>=2.5
 typing_extensions>=4.9
-# pypdf>=4.0
-
-
-
-
