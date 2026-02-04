@@ -1,4 +1,4 @@
-from __future__ import annotations
+# from __future__ import annotations
 from llm import get_llm
 from models import get_underutilized_employees
 
@@ -319,6 +319,7 @@ def route_and_summarize(
             "Please check the LLM Health Check in the sidebar."
         )
         return answer_text, None
+
 
 
 
