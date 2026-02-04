@@ -16,27 +16,31 @@
 #python-dotenv
 
 
-# Core LangChain split packages
+
+
+# --- Streamlit UI ---
+streamlit==1.35.0
+rich==13.7.1   # Streamlit requires rich <14
+
+python-dotenv>=1.0
+
+# --- LangChain (modern split packages) ---
 langchain>=0.2
 langchain-community>=0.2
 langchain-text-splitters>=0.2
 
-# Groq integration
+# --- Groq integration ---
 langchain-groq>=1.0
 
-# Vector store + embeddings
+# --- Vector store + Embeddings ---
 chromadb>=0.5
 sentence-transformers>=3.0
 
-# App / utilities
-streamlit==1.35.0
+# --- Misc runtime ---
 pydantic>=2.5
-python-dotenv>=1.0
-
-# Optional: PDF/Office loaders (uncomment if you need them)
-# unstructured>=0.15
-# pdfminer.six>=20231228
+typing_extensions>=4.9
 # pypdf>=4.0
+
 
 
 
