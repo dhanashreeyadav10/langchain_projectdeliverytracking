@@ -102,8 +102,8 @@
 #     return df
 
 
+
 # loaders.py
-import os
 import glob
 import pandas as pd
 from pathlib import Path
@@ -111,18 +111,15 @@ from typing import List
 from langchain_core.documents import Document
 
 def load_csv_folder(folder: str = "data") -> List[Document]:
-    """
-    Load all CSV files in a folder into LangChain Documents.
-    Assumes first row is header; stores file path + row index in metadata.
-    """
     docs: List[Document] = []
-    path = Path(folder)
-    path.mkdir(parents=True, exist_ok=True)
-
-    for csv_path in glob.glob(str(path / "*.csv")):
+    Path(folder).mkdir(parents=True, exist_ok=True)
+    for csv_path in glob.glob(str(Path(folder) / "*.csv")):
         df = pd.read_csv(csv_path)
         for idx, row in df.iterrows():
-            text = "\n".join([f"{k}: {row[k]}" for k in df.columns if k in row and pd.notna(row[k])])
-            meta = {"source": os.path.basename(csv_path), "row": int(idx)}
-            docs.append(Document(page_content=text, metadata=meta))
+            text = "\n".join(
+                f"{k}: {row[k]}"
+                for k in df.columns
+                if k in row and pd.notna(row[k])
+            )
+            docs.append(Document(page_content=text, metadata={"source": Path(csv_path).name, "row": int(idx)}))
     return docs
