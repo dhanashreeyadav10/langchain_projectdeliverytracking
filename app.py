@@ -96,6 +96,14 @@ if str(ROOT) not in sys.path:
 #     sys.path.insert(0, str(_PROJECT_ROOT))
 # --- END robust import shim ---
 
+# ---- PATH SHIM: MUST BE FIRST ----
+import sys, os
+from pathlib import Path
+ROOT = Path(__file__).resolve().parent  # project root: .../lc_poc
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+# ---- END PATH SHIM ----
+
 import traceback
 import streamlit as st
 import pandas as pd
@@ -301,6 +309,7 @@ if st.button("🧠 Get Answer", key="qa_get_answer_btn"):
                     mime="text/csv",
                     key="qa_download_csv_btn",
                 )
+
 
 
 
