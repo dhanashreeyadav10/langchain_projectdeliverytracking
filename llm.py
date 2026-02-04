@@ -1,22 +1,37 @@
-# -*- coding: utf-8 -*-
-"""LLM helper using Groq Python SDK only (no LangChain dependency)."""
-from __future__ import annotations
-import os
-from typing import Optional
-
-import os
-from langchain_openai import ChatOpenAI
 import streamlit as st
+from langchain_groq import ChatGroq
+
 
 def get_llm():
-    if "OPENAI_API_KEY" not in st.secrets:
-        raise ValueError("OPENAI_API_KEY not set in Streamlit secrets")
+    if "GROQ_API_KEY" not in st.secrets:
+        raise ValueError("GROQ_API_KEY not set in Streamlit secrets")
 
-    return ChatOpenAI(
-        model="gpt-3.5-turbo",
-        temperature=0.2,
-        api_key=st.secrets["OPENAI_API_KEY"]
+    return ChatGroq(
+        api_key=st.secrets["GROQ_API_KEY"],
+        model="llama3-70b-8192",  # change if needed
+        temperature=0.2
     )
+
+
+# # -*- coding: utf-8 -*-
+# """LLM helper using Groq Python SDK only (no LangChain dependency)."""
+# from __future__ import annotations
+# import os
+# from typing import Optional
+
+# import os
+# from langchain_openai import ChatOpenAI
+# import streamlit as st
+
+# def get_llm():
+#     if "OPENAI_API_KEY" not in st.secrets:
+#         raise ValueError("OPENAI_API_KEY not set in Streamlit secrets")
+
+#     return ChatOpenAI(
+#         model="gpt-3.5-turbo",
+#         temperature=0.2,
+#         api_key=st.secrets["OPENAI_API_KEY"]
+#     )
 
 
 SYSTEM_PROMPT_EXEC = "You are a senior enterprise delivery intelligence advisor."
@@ -50,3 +65,4 @@ def explain_insight(prompt: str, model: str = "llama-3.1-8b-instant") -> str:
         # Surface exact server/client error so we know what's wrong
 
         return f"❌ LLM call failed: {e}"
+
