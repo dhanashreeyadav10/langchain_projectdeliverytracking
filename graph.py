@@ -5,6 +5,13 @@ from langgraph.graph import StateGraph, END
 from models import utilization_model, delivery_risk_model, cost_margin_model, hr_health_model
 from agents import UtilizationAgent, DeliveryRiskAgent, CostMarginAgent, HRRiskAgent
 
+from agents import delivery_agent
+
+
+def run_delivery_graph(question, context):
+    return delivery_agent(question, context)
+
+
 class AppState(TypedDict, total=False):
     raw_df: pd.DataFrame
     util_df: pd.DataFrame
@@ -90,4 +97,5 @@ def build_graph():
     g.add_edge("hr", "summarize")
     g.add_edge("summarize", END)
     return g.compile()
+
 
