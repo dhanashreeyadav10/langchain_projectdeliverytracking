@@ -1,3 +1,18 @@
+import streamlit as st
+from langchain_groq import ChatGroq
+
+
+def get_llm():
+    if "GROQ_API_KEY" not in st.secrets:
+        raise ValueError("GROQ_API_KEY not found in Streamlit secrets")
+
+    return ChatGroq(
+        api_key=st.secrets["GROQ_API_KEY"],
+        model="llama3-70b-8192",
+        temperature=0.2
+    )
+
+
 # -*- coding: utf-8 -*-
 """LLM helper using Groq Python SDK only (no LangChain dependency)."""
 from __future__ import annotations
@@ -34,3 +49,4 @@ def explain_insight(prompt: str, model: str = "llama-3.1-8b-instant") -> str:
     except Exception as e:
         # Surface exact server/client error so we know what's wrong
         return f"❌ LLM call failed: {e}"
+
