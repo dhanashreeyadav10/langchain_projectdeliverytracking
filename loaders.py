@@ -108,17 +108,25 @@ def normalize_and_validate(df: pd.DataFrame) -> pd.DataFrame:
         )
 
 
+import pandas as pd
+
+
 def load_delivery_data(uploaded_file):
-    if uploaded_file.name.endswith(".csv"):
-        return pd.read_csv(uploaded_file)
-    elif uploaded_file.name.endswith(".xlsx"):
-        return pd.read_excel(uploaded_file)
-    else:
-        raise ValueError("Unsupported file format")
+    """
+    Load delivery data from CSV or Excel
+    """
 
+    filename = uploaded_file.name.lower()
+
+    if filename.endswith(".csv"):
+        df = pd.read_csv(uploaded_file)
+
+    elif filename.endswith(".xlsx") or filename.endswith(".xls"):
+        df = pd.read_excel(uploaded_file)
 
     else:
-        df["billable"] = (df["billable"] > 0).astype(int)
+        raise ValueError("Unsupported file format. Please upload CSV or Excel.")
 
     return df
+
 
