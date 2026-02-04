@@ -102,6 +102,8 @@ from __future__ import annotations
 from typing import Optional, TypedDict
 import pandas as pd
 from langgraph.graph import StateGraph, END
+
+# ✅ absolute imports for repo modules
 from models import utilization_model, delivery_risk_model, cost_margin_model, hr_health_model
 from agents import UtilizationAgent, DeliveryRiskAgent, CostMarginAgent, HRRiskAgent
 
@@ -117,8 +119,6 @@ class AppState(TypedDict, total=False):
     hr_risks: pd.DataFrame
     use_llm: bool
     llm_summary: Optional[str]
-
-# --- Nodes ---
 
 def compute_features(state: AppState) -> AppState:
     df = state["raw_df"]
@@ -165,12 +165,14 @@ Provide:
 - Root causes
 - Actionable recommendations
         """
-        # Lazy import to avoid import-time errors
+        # ✅ ABSOLUTE, LAZY import with diagnostic on failure
         try:
-            from .llm import explain_insight
+            from src.llm import explain_insight  # absolute import
             state["llm_summary"] = explain_insight(prompt)
         except Exception as e:
-            state["llm_summary"] = f"❌ LLM unavailable: {e}"
+            import traceback
+            tb = traceback.format_exc(limit=1)  # short hint (top line)
+            state["llm_summary"] = f"❌ LLM unavailable: {e} | {tb.strip()}"
     return state
 
 def build_graph():
@@ -190,5 +192,4 @@ def build_graph():
     g.add_edge("hr", "summarize")
     g.add_edge("summarize", END)
     return g.compile()
-
-
+``
