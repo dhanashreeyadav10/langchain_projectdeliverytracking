@@ -1,6 +1,20 @@
 from __future__ import annotations
 import pandas as pd
 
+import pandas as pd
+
+def get_underutilized_employees(df, threshold=70):
+    """
+    Assumes 'utilization' column exists
+    """
+    if "utilization" not in df.columns:
+        return pd.DataFrame({"Message": ["No utilization column found"]})
+
+    return df[df["utilization"] < threshold][
+        ["employee_id", "employee_name", "utilization"]
+    ]
+
+
 # --- UTILIZATION ---
 def utilization_model(df: pd.DataFrame) -> pd.DataFrame:
     util = df.groupby("employee_id")["hours_logged"].sum().reset_index()
@@ -59,4 +73,5 @@ def hr_health_model(df: pd.DataFrame) -> pd.DataFrame:
         .reset_index()
     )
     hr["hr_risk"] = ((hr["avg_attendance"] < 90) | (hr["avg_rating"] < 3.5)).astype(int)
+
     return hr
