@@ -7,6 +7,13 @@ from agents import UtilizationAgent, DeliveryRiskAgent, CostMarginAgent, HRRiskA
 
 from agents import delivery_agent
 
+from agents import delivery_agent
+
+
+def run_delivery_graph(question, context):
+    return delivery_agent(question, context)
+
+
 def run_graph(query, context):
     return delivery_agent(query, context)
 
@@ -97,4 +104,5 @@ def build_graph():
     g.add_edge("summarize", END)
 
     return g.compile()
+
 
