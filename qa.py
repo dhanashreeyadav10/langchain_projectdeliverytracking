@@ -1,3 +1,31 @@
+from llm import get_llm
+from models import get_underutilized_employees
+
+
+def ask_delivery_bot(df, question: str):
+    if not question:
+        return "Please ask a valid question."
+
+    q = question.lower()
+
+    if "underutil" in q:
+        result = get_underutilized_employees(df)
+        if result.empty:
+            return "No underutilized employees found."
+        return result.to_string(index=False)
+
+    llm = get_llm()
+
+    prompt = (
+        "You are a Delivery Intelligence Assistant.\n\n"
+        f"Question:\n{question}\n\n"
+        "Dataset snapshot:\n\n"
+        f"{df.head(25).to_string()}\n\n"
+        "Answer with clear insights and recommendations."
+    )
+
+    return llm.invoke(prompt)
+
 
 # -*- coding: utf-8 -*-
 """
@@ -290,4 +318,5 @@ def route_and_summarize(
             "Please check the LLM Health Check in the sidebar."
         )
         return answer_text, None
+
 
