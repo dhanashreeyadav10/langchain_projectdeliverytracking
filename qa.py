@@ -294,18 +294,15 @@
 
 # qa.py
 import os
-from typing import List, Optional
-
+from typing import List
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores import Chroma
 from langchain_community.embeddings import SentenceTransformerEmbeddings
 from langchain_core.documents import Document
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables import RunnableParallel, RunnablePassthrough
-
 from llm import get_llm
 
-# --- Configuration ---
 CHROMA_DIR = os.getenv("CHROMA_DIR", ".chroma")
 EMBED_MODEL = os.getenv("EMBED_MODEL", "sentence-transformers/all-MiniLM-L6-v2")
 K_RETRIEVE = int(os.getenv("K_RETRIEVE", "4"))
@@ -315,53 +312,38 @@ Use the provided context to answer the user question. If the answer is not in th
 Be concise and include specific values/dates/owners when available."""
 
 def build_index(docs: List[Document], persist_dir: str = CHROMA_DIR):
-    # Split into chunks for better retrieval
     splitter = RecursiveCharacterTextSplitter(chunk_size=800, chunk_overlap=120)
     chunks = splitter.split_documents(docs)
-
-    # Local embedding model; fast + no external API needed
     embeddings = SentenceTransformerEmbeddings(model_name=EMBED_MODEL)
-
-    # Create / load Chroma index
-    vectordb = Chroma.from_documents(
-        documents=chunks,
-        embedding=embeddings,
-        persist_directory=persist_dir,
-    )
+    vectordb = Chroma.from_documents(chunks, embedding=embeddings, persist_directory=persist_dir)
     vectordb.persist()
-    return vectordb
 
-def get_retriever(persist_dir: str = CHROMA_DIR):
+def _retriever():
     embeddings = SentenceTransformerEmbeddings(model_name=EMBED_MODEL)
-    vectordb = Chroma(persist_directory=persist_dir, embedding_function=embeddings)
+    vectordb = Chroma(persist_directory=CHROMA_DIR, embedding_function=embeddings)
     return vectordb.as_retriever(search_kwargs={"k": K_RETRIEVE})
 
-def make_rag_chain():
-    llm = get_llm()
+def _format_ctx(docs: List[Document]) -> str:
+    blocks = []
+    for i, d in enumerate(docs, 1):
+        src = d.metadata.get("source", "unknown")
+        blocks.append(f"[{i}] (source: {src})\n{d.page_content}")
+    return "\n\n".join(blocks)
 
+def get_rag_chain():
+    llm = get_llm()
     prompt = ChatPromptTemplate.from_messages(
         [
             ("system", SYSTEM_PROMPT),
             ("human", "Question: {question}\n\nContext:\n{context}"),
         ]
     )
+    retr = _retriever()
+    # Retrieve + pass through question → prompt → LLM
+    chain = RunnableParallel(context=retr | _format_ctx, question=RunnablePassthrough()) | prompt | llm
+    return chain
 
-    # Format retrieved docs as context string
-    def _fmt(docs: List[Document]) -> str:
-        blocks = []
-        for i, d in enumerate(docs, 1):
-            src = d.metadata.get("source", "unknown")
-            blocks.append(f"[{i}] (source: {src})\n{d.page_content}")
-        return "\n\n".join(blocks)
-
-    retriever = get_retriever()
-
-    # Runnable graph: retrieve in parallel with passthrough question, then prompt → LLM
-    rag = RunnableParallel(
-        context=retriever | _fmt, question=RunnablePassthrough()
-    ) | prompt | llm
-
-    return rag
-
-
-
+def answer_question(question: str) -> str:
+    chain = get_rag_chain()
+    result = chain.invoke(question)
+    return getattr(result, "content", str(result))
