@@ -1,3 +1,5 @@
+
+from __future__ import annotations
 import pandas as pd
 
 
@@ -13,7 +15,6 @@ def load_delivery_data(uploaded_file):
     raise ValueError("Unsupported file format. Upload CSV or Excel.")
 
 
-from __future__ import annotations
 import io, re
 import pandas as pd
 
@@ -124,4 +125,5 @@ def normalize_and_validate(df: pd.DataFrame) -> pd.DataFrame:
     else:
         df["billable"] = (df["billable"] > 0).astype(int)
     return df
+
 
