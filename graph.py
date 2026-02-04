@@ -2,21 +2,8 @@ from __future__ import annotations
 from typing import Optional, TypedDict
 import pandas as pd
 from langgraph.graph import StateGraph, END
-from models import utilization_model, delivery_risk_model, cost_margin_model, hr_health_model
-from agents import UtilizationAgent, DeliveryRiskAgent, CostMarginAgent, HRRiskAgent
-
-from agents import delivery_agent
-
-from agents import delivery_agent
-
-
-def run_delivery_graph(question, context):
-    return delivery_agent(question, context)
-
-
-def run_graph(query, context):
-    return delivery_agent(query, context)
-
+from .models import utilization_model, delivery_risk_model, cost_margin_model, hr_health_model
+from .agents import UtilizationAgent, DeliveryRiskAgent, CostMarginAgent, HRRiskAgent
 
 class AppState(TypedDict, total=False):
     raw_df: pd.DataFrame
@@ -102,7 +89,4 @@ def build_graph():
     g.add_edge("cost", "hr")
     g.add_edge("hr", "summarize")
     g.add_edge("summarize", END)
-
     return g.compile()
-
-
