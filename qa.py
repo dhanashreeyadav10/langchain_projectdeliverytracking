@@ -1,3 +1,26 @@
+from llm import get_llm
+from models import get_underutilized_employees
+
+def ask_delivery_bot(df, question: str):
+    question = question.lower()
+
+    if "underutil" in question:
+        result = get_underutilized_employees(df)
+        return result.to_string(index=False)
+
+    llm = get_llm()
+    prompt = f"""
+    You are a delivery intelligence assistant.
+    Answer the question based on the dataset below.
+
+    Question: {question}
+
+    Dataset:
+    {df.head(30).to_string()}
+    """
+
+    response = llm.invoke(prompt)
+    return response
 
 
 # -*- coding: utf-8 -*-
@@ -292,3 +315,4 @@ def route_and_summarize(
         )
 
         return answer_text, None
+
