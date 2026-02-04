@@ -1,6 +1,6 @@
+from __future__ import annotations
+import io, re
 import pandas as pd
-
-
 
 # NOTE:
 # We import heavy/optional libs *inside* functions so that a failed import
@@ -106,27 +106,6 @@ def normalize_and_validate(df: pd.DataFrame) -> pd.DataFrame:
             .map({"yes": 1, "y": 1, "true": 1, "1": 1, "no": 0, "n": 0, "false": 0, "0": 0})
             .fillna(0)
         )
-
-
-import pandas as pd
-
-
-def load_delivery_data(uploaded_file):
-    """
-    Load delivery data from CSV or Excel
-    """
-
-    filename = uploaded_file.name.lower()
-
-    if filename.endswith(".csv"):
-        df = pd.read_csv(uploaded_file)
-
-    elif filename.endswith(".xlsx") or filename.endswith(".xls"):
-        df = pd.read_excel(uploaded_file)
-
     else:
-        raise ValueError("Unsupported file format. Please upload CSV or Excel.")
-
+        df["billable"] = (df["billable"] > 0).astype(int)
     return df
-
-
