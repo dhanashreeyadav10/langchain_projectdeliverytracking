@@ -347,3 +347,9 @@ def answer_question(question: str) -> str:
     chain = get_rag_chain()
     result = chain.invoke(question)
     return getattr(result, "content", str(result))
+
+# --- Compatibility shim (do NOT remove; preserves old imports) ---
+def make_rag_chain():
+    """Backwards-compatible alias so existing imports keep working."""
+    return get_rag_chain()
+
