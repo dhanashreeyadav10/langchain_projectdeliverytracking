@@ -294,15 +294,18 @@
 
 # qa.py
 import os
-from typing import List
+from typing import List, Optional
+
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores import Chroma
 from langchain_community.embeddings import SentenceTransformerEmbeddings
 from langchain_core.documents import Document
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables import RunnableParallel, RunnablePassthrough
+
 from llm import get_llm
 
+# ---- Configuration ----
 CHROMA_DIR = os.getenv("CHROMA_DIR", ".chroma")
 EMBED_MODEL = os.getenv("EMBED_MODEL", "sentence-transformers/all-MiniLM-L6-v2")
 K_RETRIEVE = int(os.getenv("K_RETRIEVE", "4"))
@@ -311,16 +314,27 @@ SYSTEM_PROMPT = """You are a helpful assistant for Project Delivery Tracking.
 Use the provided context to answer the user question. If the answer is not in the context, say you don't know.
 Be concise and include specific values/dates/owners when available."""
 
-def build_index(docs: List[Document], persist_dir: str = CHROMA_DIR):
+# ---------- Indexing ----------
+def build_index(docs: List[Document], persist_dir: str = CHROMA_DIR) -> int:
+    """
+    Split -> Embed -> Persist to Chroma.
+    Returns number of chunks indexed.
+    """
     splitter = RecursiveCharacterTextSplitter(chunk_size=800, chunk_overlap=120)
     chunks = splitter.split_documents(docs)
-    embeddings = SentenceTransformerEmbeddings(model_name=EMBED_MODEL)
-    vectordb = Chroma.from_documents(chunks, embedding=embeddings, persist_directory=persist_dir)
-    vectordb.persist()
 
-def _retriever():
     embeddings = SentenceTransformerEmbeddings(model_name=EMBED_MODEL)
-    vectordb = Chroma(persist_directory=CHROMA_DIR, embedding_function=embeddings)
+    vectordb = Chroma.from_documents(
+        documents=chunks,
+        embedding=embeddings,
+        persist_directory=persist_dir,
+    )
+    vectordb.persist()
+    return len(chunks)
+
+def _get_retriever(persist_dir: str = CHROMA_DIR):
+    embeddings = SentenceTransformerEmbeddings(model_name=EMBED_MODEL)
+    vectordb = Chroma(persist_directory=persist_dir, embedding_function=embeddings)
     return vectordb.as_retriever(search_kwargs={"k": K_RETRIEVE})
 
 def _format_ctx(docs: List[Document]) -> str:
@@ -330,7 +344,12 @@ def _format_ctx(docs: List[Document]) -> str:
         blocks.append(f"[{i}] (source: {src})\n{d.page_content}")
     return "\n\n".join(blocks)
 
+# ---------- RAG Chain ----------
 def get_rag_chain():
+    """
+    Construct a RAG pipeline:
+      retriever -> context formatting -> prompt -> Groq LLM
+    """
     llm = get_llm()
     prompt = ChatPromptTemplate.from_messages(
         [
@@ -338,18 +357,38 @@ def get_rag_chain():
             ("human", "Question: {question}\n\nContext:\n{context}"),
         ]
     )
-    retr = _retriever()
-    # Retrieve + pass through question → prompt → LLM
-    chain = RunnableParallel(context=retr | _format_ctx, question=RunnablePassthrough()) | prompt | llm
+
+    retriever = _get_retriever()
+    chain = (
+        RunnableParallel(context=retriever | _format_ctx, question=RunnablePassthrough())
+        | prompt
+        | llm
+    )
     return chain
 
-def answer_question(question: str) -> str:
+# --- Backwards/legacy alias: do NOT remove (preserves old imports) ---
+make_rag_chain = get_rag_chain
+
+# ---------- Simple answer helper ----------
+def answer_question(question: str, *, with_sources: bool = False) -> str:
+    """
+    Convenience wrapper used by many UIs.
+    If with_sources=True, appends a simple 'Sources:' footer.
+    """
     chain = get_rag_chain()
-    result = chain.invoke(question)
-    return getattr(result, "content", str(result))
+    ai_msg = chain.invoke(question)
+    content = getattr(ai_msg, "content", str(ai_msg))
 
-# --- Compatibility shim (do NOT remove; preserves old imports) ---
-def make_rag_chain():
-    """Backwards-compatible alias so existing imports keep working."""
-    return get_rag_chain()
+    if not with_sources:
+        return content
 
+    # Add minimal source list (if you want richer citations, we can extend this later)
+    retriever = _get_retriever()
+    docs: List[Document] = retriever.get_relevant_documents(question)
+    unique_sources = []
+    for d in docs:
+        s = d.metadata.get("source", "unknown")
+        if s not in unique_sources:
+            unique_sources.append(s)
+    footer = "\n\nSources: " + ", ".join(unique_sources) if unique_sources else ""
+    return content + footer
